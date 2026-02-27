@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Simple Quiz App</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+	<div class="card">
+		<div class="start-section" id="startSection">
+			<div class="start-row">
+				<select id="languageSelect" aria-label="Choose programming language">
+					<option value="">Choose programming language...</option>
+					<option value="JavaScript">JavaScript</option>
+					<option value="Python">Python</option>
+					<option value="Java">Java</option>
+					<option value="C++">C++</option>
+					<option value="C#">C#</option>
+					<option value="Go">Go</option>
+				</select>
+				<input id="languageOther" type="text" placeholder="Other programming language" class="hidden" />
+				<button id="start" class="primary">Start quiz</button>
+			</div>
+			<div id="languageHint" class="email-status">Pick your preferred programming language to begin.</div>
+		</div>
+
+		<div class="header">
+			<h1>Simple Quiz</h1>
+			<div class="pill" id="status">Question 1 of 5</div>
+			<div class="language-pill hidden" id="languageDisplay"></div>
+		</div>
+
+		<div id="quizContent" class="hidden">
+			<p class="progress" id="progress">Pick the best answer.</p>
+			<div id="question">Loading question...</div>
+			<ul id="options"></ul>
+
+			<div class="actions">
+				<div id="score" class="score hidden"></div>
+				<div id="note" class="note hidden">Want detailed analysis? Share your Gmail and we'll send it from renjini221@gmail.com.</div>
+				<button id="next" class="primary" disabled>Next</button>
+				<button id="restart" class="primary hidden">Restart</button>
+			</div>
+
+			<div id="emailSection" class="hidden">
+				<div class="email-collect">
+					<input id="emailInput" type="email" placeholder="yourname@gmail.com" aria-label="Gmail address" />
+					<button id="sendEmail" class="primary">Send analysis</button>
+				</div>
+				<div id="emailStatus" class="email-status"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+	<script src="script.js"></script>
+</body>
+</html>
