@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Simple Quiz App</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+	<div class="card">
+		<div class="start-section" id="startSection">
+			<div class="start-row">
+				<select id="languageSelect" aria-label="Choose programming language">
+					<option value="">Choose programming language...</option>
+					<option value="JavaScript">JavaScript</option>
+					<option value="Python">Python</option>
+					<option value="Java">Java</option>
+					<option value="C++">C++</option>
+					<option value="C#">C#</option>
+					<option value="Go">Go</option>
+				</select>
+				<input id="languageOther" type="text" placeholder="Other programming language" class="hidden" />
+				<button id="start" class="primary">Start quiz</button>
+			</div>
+			<div id="languageHint" class="email-status">Pick your preferred programming language to begin.</div>
+		</div>
+
+		<div class="header">
+			<h1>Simple Quiz</h1>
+			<div class="pill" id="status">Question 1 of 5</div>
+			<div class="language-pill hidden" id="languageDisplay"></div>
+		</div>
+
+		<div id="quizContent" class="hidden">
+			<p class="progress" id="progress">Pick the best answer.</p>
+			<div id="question">Loading question...</div>
+			<ul id="options"></ul>
+
+			<div class="actions">
+				<div id="score" class="score hidden"></div>
+				<div id="note" class="note hidden">Want detailed analysis? Share your Gmail and we'll send it from renjini221@gmail.com.</div>
+				<button id="next" class="primary" disabled>Next</button>
+				<button id="restart" class="primary hidden">Restart</button>
+			</div>
+
+			<div id="emailSection" class="hidden">
+				<div class="email-collect">
+					<input id="emailInput" type="email" placeholder="yourname@gmail.com" aria-label="Gmail address" />
+					<button id="sendEmail" class="primary">Send analysis</button>
+				</div>
+				<div id="emailStatus" class="email-status"></div>
+			</div>
+		</div>
+	</div>
+
+	<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+	<script>
+		const EMAILJS_PUBLIC_KEY = "yZX9lSzwMG30A9wMA";
+		const EMAILJS_SERVICE_ID = "service_fcpsqu9";
+		const EMAILJS_TEMPLATE_ID = "template_azgpn0g";
+		if (EMAILJS_PUBLIC_KEY !== "YOUR_PUBLIC_KEY") {
+			emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+		}
+		const quizBank = {
+			JavaScript: [
+				{ question: "Which keyword declares a block-scoped variable?", options: ["var", "let", "static", "with"], answer: 1 },
+				{ question: "What does JSON.parse() do?", options: ["Turns JS into JSON", "Parses JSON string to value", "Stringifies objects", "Minifies JS"], answer: 1 },
+				{ question: "Which array method returns a new array of filtered items?", options: ["map", "reduce", "filter", "forEach"], answer: 2 },
+				{ question: "How do you create a Promise?", options: ["promise()", "new Promise()", "Promise.create()", "Promise()"], answer: 1 },
+				{ question: "Which operator spreads array items?", options: ["...", "**", "??", "=>"], answer: 0 },
+			],
+			Python: [
+				{ question: "Which keyword defines a function?", options: ["func", "def", "function", "fn"], answer: 1 },
+				{ question: "What is a list comprehension output?", options: ["Generator", "Iterator", "List", "Set"], answer: 2 },
+				{ question: "Which statement handles exceptions?", options: ["catch", "handle", "except", "trap"], answer: 2 },
+				{ question: "Which library is for HTTP requests?", options: ["requests", "httpx", "urllib", "All of these"], answer: 3 },
+				{ question: "How to type hint an int variable x?", options: ["x: int", "int x", "var x: int", "x <- int"], answer: 0 },
+			],
+			Java: [
+				{ question: "Which keyword is used to inherit a class?", options: ["inherits", "extends", "implements", "using"], answer: 1 },
+				{ question: "Which collection preserves insertion order?", options: ["HashSet", "TreeSet", "LinkedHashMap", "PriorityQueue"], answer: 2 },
+				{ question: "What does JVM stand for?", options: ["Java Variable Manager", "Java Virtual Machine", "Java Version Manager", "Java Vendor Machine"], answer: 1 },
+				{ question: "Which keyword prevents inheritance?", options: ["const", "static", "final", "sealed"], answer: 2 },
+				{ question: "Default value of an uninitialized int field?", options: ["0", "null", "undefined", "-1"], answer: 0 },
+			],
+			"C++": [
+				{ question: "Which cast is safest for polymorphic downcast?", options: ["static_cast", "dynamic_cast", "reinterpret_cast", "const_cast"], answer: 1 },
+				{ question: "What does RAII manage?", options: ["Only memory", "Resources via object lifetime", "Threads only", "Exceptions only"], answer: 1 },
+				{ question: "Header for std::vector?", options: ["<list>", "<vector>", "<array>", "<deque>"], answer: 1 },
+				{ question: "Which keyword creates a template?", options: ["template", "generic", "typename", "concept"], answer: 0 },
+				{ question: "Move semantics use which symbol?", options: ["&&", "&", "||", "->"], answer: 0 },
+			],
+			"C#": [
+				{ question: "Which keyword implements an interface?", options: ["extends", "implements", "inherits", ":"], answer: 3 },
+				{ question: "Async methods typically return?", options: ["void", "Task", "Thread", "Action"], answer: 1 },
+				{ question: "LINQ method to project items?", options: ["Where", "Select", "Aggregate", "Join"], answer: 1 },
+				{ question: "Nullable reference types enabled with?", options: ["#nullable enable", "using nullable;", "nullable on", "csproj:false"], answer: 0 },
+				{ question: "String interpolation prefix?", options: ["$", "@", "#", "%"], answer: 0 },
+			],
+			Go: [
+				{ question: "How to declare a short variable?", options: ["var x int", "x := value", "let x =", "auto x"], answer: 1 },
+				{ question: "Which tool formats Go code?", options: ["gofmt", "golint", "goformat", "gostyle"], answer: 0 },
+				{ question: "Default visibility of identifiers starting lowercase?", options: ["Exported", "Package-private", "Protected", "Private to file"], answer: 1 },
+				{ question: "How to create a goroutine?", options: ["spawn f()", "async f()", "go f()", "thread f()"], answer: 2 },
+				{ question: "Which type is used for errors?", options: ["Exception", "error", "Result", "Outcome"], answer: 1 },
+			],
+			Default: [
+				{ question: "Which term describes reusable code blocks?", options: ["Variables", "Functions", "Comments", "Literals"], answer: 1 },
+				{ question: "What does IDE stand for?", options: ["Integrated Dev Environment", "Internal Development Execution", "Integrated Development Environment", "Internet Development Engine"], answer: 2 },
+				{ question: "What is version control used for?", options: ["Design UI", "Track code changes", "Test performance", "Host images"], answer: 1 },
+				{ question: "Which is a loop structure?", options: ["if", "switch", "for", "throw"], answer: 2 },
+				{ question: "What does README typically contain?", options: ["Images", "Credentials", "Project overview", "Binaries"], answer: 2 },
+			],
+		};
+
+		let current = 0;
+		let score = 0;
+		let selectedIndex = null;
+		let lastResultText = "";
+		let lastAnalysisHtml = "";
+		let userAnswers = [];
+		let selectedLanguage = "";
+		let activeQuiz = [];
+		let tempVar = 0
+
+		const questionEl = document.getElementById("question");
+		const optionsEl = document.getElementById("options");
+		const statusEl = document.getElementById("status");
+		const progressEl = document.getElementById("progress");
+		const scoreEl = document.getElementById("score");
+		const nextBtn = document.getElementById("next");
+		const restartBtn = document.getElementById("restart");
+		const emailSection = document.getElementById("emailSection");
+		const emailInput = document.getElementById("emailInput");
+		const emailStatus = document.getElementById("emailStatus");
+		const noteEl = document.getElementById("note");
+		const quizContent = document.getElementById("quizContent");
+		const startSection = document.getElementById("startSection");
+		const languageSelect = document.getElementById("languageSelect");
+		const languageOther = document.getElementById("languageOther");
+		const languageDisplay = document.getElementById("languageDisplay");
+		const languageHint = document.getElementById("languageHint");
+		const startBtn = document.getElementById("start");
+
+		function renderQuestion() {
+			if (!activeQuiz.length) return;
+			const { question, options } = activeQuiz[current];
+			questionEl.textContent = question;
+			statusEl.textContent = `Question ${current + 1} of ${activeQuiz.length}`;
+			progressEl.textContent = "Pick the best answer.";
+			nextBtn.textContent = current === activeQuiz.length - 1 ? "Finish" : "Next";
+			scoreEl.classList.add("hidden");
+			scoreEl.textContent = "";
+			selectedIndex = null;
+			nextBtn.disabled = true;
+			optionsEl.innerHTML = "";
+
+			options.forEach((option, index) => {
+				const li = document.createElement("li");
+				const button = document.createElement("button");
+				button.className = "option";
+				button.textContent = option;
+				button.addEventListener("click", () => handleSelect(index, button));
+				li.appendChild(button);
+				optionsEl.appendChild(li);
+			});
+		}
+
+		function handleSelect(index, button) {
+			selectedIndex = index;
+			Array.from(document.querySelectorAll("button.option"))
+				.forEach(btn => btn.classList.remove("selected"));
+			button.classList.add("selected");
+			nextBtn.disabled = false;
+		}
+
+		function buildAnalysisHtml() {
+			const rows = activeQuiz.map((item, idx) => {
+				const userChoice = userAnswers[idx];
+				const userText = userChoice === undefined ? "Not answered" : item.options[userChoice];
+				const correctText = item.options[item.answer];
+				const isCorrect = userChoice === item.answer;
+
+				return `
+				  <tr>
+				    <td><strong>Q${idx + 1}</strong></td>
+				    <td>${item.question}</td>
+				    <td>${userText}</td>
+				    <td>${correctText}</td>
+				    <td>${isCorrect ? "✅ Correct" : "❌ Wrong"}</td>
+				  </tr>
+				`;
+			}).join("");
+
+			return `
+			  <div>
+			    <h3>${lastResultText}</h3>
+			    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse; width:100%; margin-top:10px;">
+			      <tr style="background:#f3f4f6;">
+			        <th>#</th>
+			        <th>Question</th>
+			        <th>Your Answer</th>
+			        <th>Correct Answer</th>
+			        <th>Result</th>
+			      </tr>
+			      ${rows}
+			    </table>
+			  </div>
+			`;
+		}
+
+		function showScore() {
+			if (!activeQuiz.length) return;
+			questionEl.textContent = "All done!";
+			optionsEl.innerHTML = "";
+			statusEl.textContent = "Quiz complete";
+			progressEl.textContent = "Thanks for playing.";
+			const percent = Math.round((score / activeQuiz.length) * 100);
+			const mood = percent >= 80 ? "good" : percent >= 60 ? "ok" : "low";
+			const feedback = mood === "good"
+				? "Great work — solid grasp!"
+				: mood === "ok"
+					? "Nice job — a bit more practice."
+					: "Review the basics and retry.";
+			lastResultText = `You scored ${score} / ${activeQuiz.length} (${percent}%) - ${feedback}`;
+			lastAnalysisHtml = buildAnalysisHtml();
+			scoreEl.textContent = lastResultText;
+			scoreEl.classList.remove("hidden");
+			noteEl.classList.remove("hidden");
+			emailSection.classList.remove("hidden");
+			nextBtn.classList.add("hidden");
+			restartBtn.classList.remove("hidden");
+		}
+
+		nextBtn.addEventListener("click", () => {
+			if (selectedIndex === activeQuiz[current].answer) {
+				score += 1;
+			}
+
+			userAnswers[current] = selectedIndex;
+
+			current += 1;
+
+			if (current >= activeQuiz.length) {
+				showScore();
+				return;
+			}
+
+			renderQuestion();
+		});
+
+		restartBtn.addEventListener("click", () => {
+			current = 0;
+			score = 0;
+			noteEl.classList.add("hidden");
+			emailSection.classList.add("hidden");
+			emailStatus.textContent = "";
+			emailInput.value = "";
+			lastResultText = "";
+			lastAnalysisHtml = "";
+			userAnswers = [];
+			activeQuiz = [];
+			quizContent.classList.add("hidden");
+			startSection.classList.remove("hidden");
+			languageDisplay.classList.add("hidden");
+			languageSelect.value = "";
+			languageOther.value = "";
+			languageOther.classList.add("hidden");
+			languageHint.textContent = "Pick your preferred programming language to begin.";
+			languageHint.style.color = "";
+			restartBtn.classList.add("hidden");
+			nextBtn.classList.remove("hidden");
+			renderQuestion();
+		});
+
+		// Language selection flow: require a language before starting the quiz.
+		languageSelect.addEventListener("change", () => {
+			if (languageSelect.value === "Other") {
+				languageOther.classList.remove("hidden");
+			} else {
+				languageOther.classList.add("hidden");
+				languageOther.value = "";
+			}
+		});
+
+		startBtn.addEventListener("click", () => {
+			const base = languageSelect.value;
+			const other = languageOther.value.trim();
+			const chosen = base === "Other" ? other : base;
+
+			if (!chosen) {
+				languageHint.textContent = "Please choose a programming language to start.";
+				languageHint.style.color = "#b91c1c";
+				return;
+			}
+
+			selectedLanguage = chosen;
+			activeQuiz = quizBank[selectedLanguage] || quizBank.Default;
+			current = 0;
+			score = 0;
+			userAnswers = new Array(activeQuiz.length).fill(undefined);
+			languageDisplay.textContent = `Programming language: ${selectedLanguage}`;
+			languageDisplay.classList.remove("hidden");
+			languageHint.textContent = `Using ${selectedLanguage}.`;
+			languageHint.style.color = "";
+			startSection.classList.add("hidden");
+			quizContent.classList.remove("hidden");
+			renderQuestion();
+		});
+
+		// Send via EmailJS: validate Gmail, then send using configured IDs.
+		document.getElementById("sendEmail").addEventListener("click", () => {
+			const email = emailInput.value.trim();
+			const isGmail = /@gmail\.com$/i.test(email);
+			if (!email || !isGmail) {
+				emailStatus.textContent = "Please enter a valid Gmail address (example@gmail.com).";
+				emailStatus.style.color = "#b91c1c";
+				return;
+			}
+			if (EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
+				emailStatus.textContent = "EmailJS is not configured. Add your public key, service ID, and template ID.";
+				emailStatus.style.color = "#b91c1c";
+				return;
+			}
+			emailStatus.textContent = "Sending...";
+			emailStatus.style.color = "#2563eb";
+			document.getElementById("sendEmail").disabled = true;
+
+			emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+				to_email: email,
+				from_email: "renjini221@gmail.com",
+				message: lastAnalysisHtml || lastResultText || "Quiz summary unavailable.",
+			}).then(() => {
+				emailStatus.textContent = `Analysis sent to ${email} from renjini221@gmail.com.`;
+				emailStatus.style.color = "#15803d";
+			}).catch(err => {
+				const detail = err?.text || err?.message || "(no details)";
+				emailStatus.textContent = `Failed to send. Check EmailJS credentials and try again. Details: ${detail}`;
+				emailStatus.style.color = "#b91c1c";
+			}).finally(() => {
+				document.getElementById("sendEmail").disabled = false;
+			});
+		});
+
+		renderQuestion();
+	</script>
+</body>
+</html>
