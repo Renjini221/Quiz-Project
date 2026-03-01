@@ -6,3 +6,6 @@ Responsive UI
 -https://quiz.sreepathi.me
 Authour:
 Sreepathi B
+## Preview
+
+![Quiz Project Screenshot](Screenshot.png)
