@@ -255,12 +255,13 @@
 		// Send via EmailJS: validate Gmail, then send using configured IDs.
 		document.getElementById("sendEmail").addEventListener("click", () => {
 			const email = emailInput.value.trim();
-			const isGmail = /@gmail\.com$/i.test(email);
-			if (!email || !isGmail) {
-				emailStatus.textContent = "Please enter a valid Gmail address (example@gmail.com).";
-				emailStatus.style.color = "#b91c1c";
-				return;
-			}
+const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+if (!email || !isValidEmail) {
+    emailStatus.textContent = "Please enter a vlaid email address.";
+    emailStatus.style.color = "#b91c1c";
+    return;
+}
 			if (EMAILJS_PUBLIC_KEY === "YOUR_PUBLIC_KEY") {
 				emailStatus.textContent = "EmailJS is not configured. Add your public key, service ID, and template ID.";
 				emailStatus.style.color = "#b91c1c";
